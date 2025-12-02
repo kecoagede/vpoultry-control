@@ -797,7 +797,7 @@
     <div class="login-container" id="loginPage">
         <div class="login-header">
             <h1><i class="fas fa-egg"></i> VPoultry</h1>
-            <p>Secure Farm Monitoring System</p>
+            <p>Monitoring System</p>
         </div>
         <div class="login-form">
             <div class="error-message" id="loginError">
@@ -1175,8 +1175,12 @@
                             <input type="text" class="setting-input" id="lastDataReceived" value="Never" readonly>
                         </div>
                         <div class="setting-item">
+                            <label class="setting-label">Device Last Seen</label>
+                            <input type="text" class="setting-input" id="deviceLastSeen" value="Never" readonly>
+                        </div>
+                        <div class="setting-item">
                             <label class="setting-label">Dashboard Version</label>
-                            <input type="text" class="setting-input" value="Dashboard v1.0" readonly>
+                            <input type="text" class="setting-input" value="Dashboard v1.1" readonly>
                         </div>
                     </div>
 
@@ -1189,6 +1193,20 @@
                         <div class="setting-item">
                             <label class="setting-label">Last Connected Device</label>
                             <input type="text" class="setting-input" id="lastDevice" value="--" readonly>
+                        </div>
+                        <div class="setting-item">
+                            <label class="setting-label">Device Status</label>
+                            <input type="text" class="setting-input" id="deviceConnectionStatus" value="Checking..." readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h3>Device Management</h3>
+                        <div class="setting-item">
+                            <label class="setting-label">Force Status Update</label>
+                            <button class="btn" id="forceDeviceCheck" style="width: 100%; background: var(--warning);">
+                                <i class="fas fa-sync-alt"></i> Check Device Status
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1298,10 +1316,11 @@
         let humidityChart = null;
         let envChart = null;
         let lastDataReceived = null;
+        let lastHeartbeatTime = 0;
         let sensorDataHistory = [];
         let firebaseListeners = [];
         let connectionCheckInterval = null;
-        let lastConnectionCheck = Date.now();
+        let deviceCheckInterval = null;
         let currentStage = QUAIL_STAGES.ADULT;
 
         // DOM Elements
@@ -1412,6 +1431,12 @@
             // Clear intervals
             if (connectionCheckInterval) {
                 clearInterval(connectionCheckInterval);
+                connectionCheckInterval = null;
+            }
+            
+            if (deviceCheckInterval) {
+                clearInterval(deviceCheckInterval);
+                deviceCheckInterval = null;
             }
             
             // Reset charts
@@ -1454,6 +1479,9 @@
             
             // Start connection monitoring
             startConnectionMonitoring();
+            
+            // Start device status monitoring
+            startDeviceMonitoring();
             
             console.log('Dashboard initialized');
         }
@@ -1504,6 +1532,12 @@
                     showNotification('Not connected to Firebase', 'error');
                 }
             });
+            
+            // Force device check button
+            document.getElementById('forceDeviceCheck').addEventListener('click', () => {
+                checkDeviceStatus();
+                showNotification('Checking device status...', 'info');
+            });
         }
 
         // Set up Firebase listeners
@@ -1524,6 +1558,12 @@
                         updateLastUpdateTime();
                         lastDataReceived = Date.now();
                         document.getElementById('lastDataReceived').value = new Date().toLocaleString();
+                        
+                        // Update last seen timestamp
+                        lastHeartbeatTime = Date.now();
+                        updateDeviceStatus(true);
+                        document.getElementById('deviceLastSeen').value = new Date().toLocaleString();
+                        document.getElementById('deviceConnectionStatus').value = 'Online';
                     } else {
                         console.log('No sensor data found');
                         setDefaultValues();
@@ -1628,6 +1668,33 @@
                     }
                 }
             }, 10000);
+        }
+
+        // Start device monitoring
+        function startDeviceMonitoring() {
+            deviceCheckInterval = setInterval(() => {
+                checkDeviceStatus();
+            }, 30000); // Check every 30 seconds
+        }
+
+        // Check device status
+        function checkDeviceStatus() {
+            const now = Date.now();
+            const timeSinceLastData = lastHeartbeatTime ? (now - lastHeartbeatTime) : Infinity;
+            
+            // If no data received for more than 2 minutes, mark as offline
+            if (timeSinceLastData > 120000) { // 2 minutes
+                updateDeviceStatus(false);
+                document.getElementById('deviceConnectionStatus').value = 'Offline';
+                document.getElementById('deviceLastSeen').value = lastHeartbeatTime ? 
+                    new Date(lastHeartbeatTime).toLocaleString() : 'Never';
+            } else if (timeSinceLastData > 60000) { // 1 minute
+                updateDeviceStatus('warning');
+                document.getElementById('deviceConnectionStatus').value = 'Warning - Delayed';
+            } else {
+                updateDeviceStatus(true);
+                document.getElementById('deviceConnectionStatus').value = 'Online';
+            }
         }
 
         // Initialize charts
@@ -1883,6 +1950,82 @@
                     <div class="device-info">${device.description}</div>
                 </div>
             `).join('');
+            
+            // Initialize all devices as checking
+            updateDeviceStatus('checking');
+        }
+
+        // Update device status
+        function updateDeviceStatus(status) {
+            const devices = document.querySelectorAll('.device-card');
+            
+            devices.forEach(device => {
+                const deviceType = device.getAttribute('data-type');
+                const icon = device.querySelector('.device-icon');
+                const statusText = device.querySelector('.device-status');
+                const infoText = device.querySelector('.device-info');
+                
+                if (status === true || status === 'online') {
+                    // Device is online
+                    icon.className = 'device-icon icon-online';
+                    statusText.textContent = 'ONLINE';
+                    statusText.style.color = 'var(--success)';
+                    
+                    // Update info based on device type
+                    if (deviceType === 'mcu') {
+                        infoText.textContent = 'Connected and sending data';
+                    } else if (deviceType === 'temp') {
+                        const temp = document.getElementById('currentTemp').textContent;
+                        infoText.textContent = temp !== '--' ? 'Sensor active' : 'No data';
+                    } else if (deviceType === 'humidity') {
+                        const humidity = document.getElementById('currentHumidity').textContent;
+                        infoText.textContent = humidity !== '--' ? 'Sensor active' : 'No data';
+                    } else if (deviceType === 'fan') {
+                        const fanStatus = document.getElementById('fanStatus').textContent;
+                        infoText.textContent = `Currently ${fanStatus}`;
+                    } else if (deviceType === 'lamp') {
+                        const lampStatus = document.getElementById('lampStatus').textContent;
+                        infoText.textContent = `Currently ${lampStatus}`;
+                    } else if (deviceType === 'wifi') {
+                        infoText.textContent = 'Network connected';
+                    }
+                    
+                } else if (status === 'warning') {
+                    // Device warning (delayed data)
+                    icon.className = 'device-icon icon-warning';
+                    statusText.textContent = 'DELAYED';
+                    statusText.style.color = 'var(--warning)';
+                    infoText.textContent = 'Data delay detected';
+                    
+                } else if (status === false || status === 'offline') {
+                    // Device is offline
+                    icon.className = 'device-icon icon-offline';
+                    statusText.textContent = 'OFFLINE';
+                    statusText.style.color = 'var(--danger)';
+                    
+                    if (deviceType === 'mcu') {
+                        infoText.textContent = 'Device disconnected';
+                    } else if (deviceType === 'temp' || deviceType === 'humidity') {
+                        infoText.textContent = 'Sensor offline';
+                    } else if (deviceType === 'fan' || deviceType === 'lamp') {
+                        infoText.textContent = 'Control offline';
+                    } else if (deviceType === 'wifi') {
+                        infoText.textContent = 'Network disconnected';
+                    }
+                    
+                } else {
+                    // Checking status
+                    icon.className = 'device-icon icon-warning';
+                    statusText.textContent = 'CHECKING';
+                    statusText.style.color = 'var(--warning)';
+                    infoText.textContent = 'Establishing connection...';
+                }
+            });
+            
+            // Update the last device info in settings
+            if (status === true || status === 'online') {
+                document.getElementById('lastDevice').value = new Date().toLocaleString();
+            }
         }
 
         // Initialize life stages
@@ -2012,9 +2155,6 @@
             
             // Update charts
             updateCharts();
-            
-            // Update device status
-            updateDeviceStatusFromData(data);
             
             // Update connection status
             updateConnectionStatus('connected');
@@ -2212,53 +2352,6 @@
             }
         }
 
-        // Update device status from sensor data
-        function updateDeviceStatusFromData(data) {
-            const devices = {
-                mcu: { status: 'online', info: 'Receiving data' },
-                temp: { 
-                    status: data.temperature !== undefined ? 'online' : 'offline', 
-                    info: data.temperature ? `${parseFloat(data.temperature).toFixed(1)}°C` : 'No data'
-                },
-                humidity: { 
-                    status: data.humidity !== undefined ? 'online' : 'offline', 
-                    info: data.humidity ? `${parseFloat(data.humidity).toFixed(1)}%` : 'No data'
-                },
-                fan: { 
-                    status: 'online', 
-                    info: 'Connected'
-                },
-                lamp: { 
-                    status: 'online', 
-                    info: 'Connected'
-                },
-                wifi: { 
-                    status: 'online', 
-                    info: 'Connected'
-                }
-            };
-            
-            Object.keys(devices).forEach(type => {
-                const device = document.querySelector(`.device-card[data-type="${type}"]`);
-                if (device) {
-                    const status = devices[type];
-                    const icon = device.querySelector('.device-icon');
-                    const statusText = device.querySelector('.device-status');
-                    const infoText = device.querySelector('.device-info');
-                    
-                    // Update icon
-                    icon.className = `device-icon icon-${status.status}`;
-                    
-                    // Update status text
-                    statusText.textContent = status.status.toUpperCase();
-                    statusText.style.color = status.status === 'online' ? 'var(--success)' : 'var(--danger)';
-                    
-                    // Update info text
-                    infoText.textContent = status.info;
-                }
-            });
-        }
-
         // Update charts
         function updateCharts() {
             if (!tempChart || !humidityChart || !envChart) return;
@@ -2451,6 +2544,10 @@
                     clearInterval(connectionCheckInterval);
                     connectionCheckInterval = null;
                 }
+                if (deviceCheckInterval) {
+                    clearInterval(deviceCheckInterval);
+                    deviceCheckInterval = null;
+                }
             } else if (isAuthenticated) {
                 // Page is visible again, reconnect
                 if (!firebaseApp) {
@@ -2458,6 +2555,7 @@
                 }
                 setupFirebaseListeners();
                 startConnectionMonitoring();
+                startDeviceMonitoring();
             }
         });
 
