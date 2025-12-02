@@ -231,6 +231,87 @@
             color: white;
         }
 
+        /* Device Status Card */
+        .device-status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .device-status-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--light);
+            border-radius: 10px;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .device-status-item:hover {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .device-icon-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+
+        .device-icon-online {
+            background: linear-gradient(135deg, #10b98120 0%, #34d39920 100%);
+            color: #10b981;
+        }
+
+        .device-icon-offline {
+            background: linear-gradient(135deg, #ef444420 0%, #f8717120 100%);
+            color: #ef4444;
+        }
+
+        .device-icon-warning {
+            background: linear-gradient(135deg, #f59e0b20 0%, #fbbf2420 100%);
+            color: #f59e0b;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .device-status {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .device-status-online {
+            color: #10b981;
+        }
+
+        .device-status-offline {
+            color: #ef4444;
+        }
+
+        .device-status-warning {
+            color: #f59e0b;
+        }
+
+        .device-last-seen {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 3px;
+        }
+
         /* Controls Card */
         .controls-section {
             margin-bottom: 25px;
@@ -497,13 +578,82 @@
             opacity: 0.9;
         }
 
+        /* System Health Overview */
+        .health-overview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .health-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .health-circle:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid;
+        }
+
+        .health-excellent:before {
+            border-color: #10b981;
+            border-left-color: transparent;
+            transform: rotate(45deg);
+        }
+
+        .health-good:before {
+            border-color: #3b82f6;
+            border-left-color: transparent;
+            transform: rotate(90deg);
+        }
+
+        .health-warning:before {
+            border-color: #f59e0b;
+            border-left-color: transparent;
+            transform: rotate(135deg);
+        }
+
+        .health-poor:before {
+            border-color: #ef4444;
+            border-left-color: transparent;
+            transform: rotate(180deg);
+        }
+
+        .health-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
         /* Grid Layout Assignments */
         .card-env { grid-column: span 4; }
+        .card-devices { grid-column: span 4; }
         .card-controls { grid-column: span 4; }
         .card-stage { grid-column: span 4; }
-        .card-alerts { grid-column: span 6; }
-        .card-chart { grid-column: span 6; }
-        .card-stats { grid-column: span 12; }
+        .card-alerts { grid-column: span 4; }
+        .card-chart { grid-column: span 4; }
+        .card-stats { grid-column: span 6; }
+        .card-health { grid-column: span 6; }
 
         /* Footer */
         .dashboard-footer {
@@ -520,8 +670,11 @@
             .dashboard-grid {
                 grid-template-columns: repeat(6, 1fr);
             }
-            .card-env, .card-controls, .card-stage, .card-alerts, .card-chart {
+            .card-env, .card-devices, .card-controls, .card-stage, .card-alerts, .card-chart, .card-stats, .card-health {
                 grid-column: span 6;
+            }
+            .device-status-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -529,12 +682,16 @@
             .dashboard-grid {
                 grid-template-columns: repeat(1, 1fr);
             }
-            .card-env, .card-controls, .card-stage, .card-alerts, .card-chart, .card-stats {
+            .card-env, .card-devices, .card-controls, .card-stage, .card-alerts, .card-chart, .card-stats, .card-health {
                 grid-column: span 1;
             }
             
             .conditions-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .device-status-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .stats-grid {
@@ -551,6 +708,11 @@
             
             .header-left h1 {
                 font-size: 1.5rem;
+            }
+            
+            .health-overview {
+                flex-direction: column;
+                gap: 20px;
             }
         }
 
@@ -673,6 +835,17 @@
         .trend-stable {
             color: var(--gray);
         }
+
+        /* Pulse animation for online devices */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .device-pulse {
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body>
@@ -739,6 +912,111 @@
                         <div class="condition-unit">%</div>
                         <div class="condition-label">Humidity</div>
                         <div class="condition-status status-optimal" id="humidityStatus">Optimal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Device Status -->
+            <div class="card card-devices">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-microchip"></i>
+                        <span>Device Status</span>
+                    </div>
+                    <div class="last-update">
+                        <i class="fas fa-sync-alt" id="refreshStatus" style="cursor: pointer;"></i>
+                    </div>
+                </div>
+                
+                <div class="health-overview">
+                    <div class="health-indicator">
+                        <div class="health-circle health-excellent" id="systemHealthCircle">
+                            <span id="healthPercentage">100%</span>
+                        </div>
+                        <div class="health-text">
+                            <div>System Health</div>
+                            <div id="healthStatus" style="font-size: 0.9rem; color: #10b981;">Excellent</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9rem; color: var(--gray);">Online Devices</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--dark);">
+                            <span id="onlineCount">6</span>/<span id="totalDevices">6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="device-status-grid" id="deviceStatusGrid">
+                    <!-- MCU Board -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-online device-pulse">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">MCU Board</div>
+                            <div class="device-status device-status-online">Online</div>
+                            <div class="device-last-seen" id="mcuLastSeen">Last seen: Just now</div>
+                        </div>
+                    </div>
+
+                    <!-- Temperature Sensor -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-online">
+                            <i class="fas fa-thermometer"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">Temperature Sensor</div>
+                            <div class="device-status device-status-online">Online</div>
+                            <div class="device-last-seen" id="tempSensorLastSeen">Reading: --°C</div>
+                        </div>
+                    </div>
+
+                    <!-- Humidity Sensor -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-online">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">Humidity Sensor</div>
+                            <div class="device-status device-status-online">Online</div>
+                            <div class="device-last-seen" id="humiditySensorLastSeen">Reading: --%</div>
+                        </div>
+                    </div>
+
+                    <!-- WiFi Connection -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-online">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">WiFi Connection</div>
+                            <div class="device-status device-status-online">Connected</div>
+                            <div class="device-last-seen" id="wifiLastSeen">Signal: -- dBm</div>
+                        </div>
+                    </div>
+
+                    <!-- Firebase Connection -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-online">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">Cloud Sync</div>
+                            <div class="device-status device-status-online">Synchronized</div>
+                            <div class="device-last-seen" id="firebaseLastSeen">Last sync: Just now</div>
+                        </div>
+                    </div>
+
+                    <!-- SD Card -->
+                    <div class="device-status-item">
+                        <div class="device-icon-container device-icon-warning">
+                            <i class="fas fa-sd-card"></i>
+                        </div>
+                        <div class="device-info">
+                            <div class="device-name">SD Card Storage</div>
+                            <div class="device-status device-status-warning">Available</div>
+                            <div class="device-last-seen" id="sdCardLastSeen">Status: Monitoring</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -885,6 +1163,60 @@
                     </div>
                 </div>
             </div>
+
+            <!-- System Health -->
+            <div class="card card-health">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>System Diagnostics</span>
+                    </div>
+                </div>
+                
+                <div class="controls-section">
+                    <div class="section-title">Hardware Status</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 5px;">MCU Uptime</div>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: var(--dark);" id="mcuUptime">00:00:00</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 5px;">Sensor Readings</div>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: var(--dark);" id="sensorReadCount">0</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 5px;">Firebase Updates</div>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: var(--dark);" id="firebaseUpdateCount">0</div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--gray); margin-bottom: 5px;">SD Card Writes</div>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: var(--dark);" id="sdWriteCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <div class="section-title">Connection Details</div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>WiFi Network:</span>
+                            <span style="font-weight: 600;" id="wifiNetwork">VAG_DECO</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Signal Strength:</span>
+                            <span style="font-weight: 600;" id="wifiSignal">-- dBm</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Last Data Received:</span>
+                            <span style="font-weight: 600;" id="lastDataReceived">Just now</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Connection Stability:</span>
+                            <span style="font-weight: 600; color: #10b981;" id="connectionStability">Excellent</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- Footer -->
@@ -920,6 +1252,15 @@
         let lastHumidity = null;
         let trendChart = null;
         let isAutoMode = true;
+        let lastDataTimestamp = Date.now();
+        let deviceStatus = {
+            mcu: { online: true, lastSeen: Date.now() },
+            tempSensor: { online: false, lastSeen: 0, lastReading: null },
+            humiditySensor: { online: false, lastSeen: 0, lastReading: null },
+            wifi: { online: false, lastSeen: 0, signalStrength: null },
+            firebase: { online: false, lastSeen: 0 },
+            sdCard: { online: false, lastSeen: 0 }
+        };
 
         // DOM Elements
         const loadingScreen = document.getElementById('loadingScreen');
@@ -936,6 +1277,9 @@
                 
                 // Initialize chart
                 initializeChart();
+                
+                // Start device status monitoring
+                startDeviceMonitoring();
                 
                 // Hide loading screen after 1.5 seconds
                 setTimeout(() => {
@@ -975,6 +1319,8 @@
                     updateEnvironmentalDisplay(data);
                     updateHistory(data);
                     updateLastUpdateTime();
+                    updateDeviceStatusFromSensor(data);
+                    lastDataTimestamp = Date.now();
                 }
             });
             
@@ -998,9 +1344,26 @@
             database.ref('vpoultry/device_state').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    updateDeviceStatus(data);
+                    updateDeviceStatusFromState(data);
                 }
             });
+            
+            // Listen to diagnostics
+            database.ref('vpoultry/diagnostics').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    updateDiagnosticsDisplay(data);
+                }
+            });
+        }
+
+        // Start device status monitoring
+        function startDeviceMonitoring() {
+            // Update device status every 30 seconds
+            setInterval(updateDeviceStatusUI, 30000);
+            
+            // Check for data freshness every 60 seconds
+            setInterval(checkDataFreshness, 60000);
         }
 
         // Update environmental display with animations
@@ -1102,10 +1465,244 @@
                     humidityStatus.className = 'condition-status status-optimal';
                 }
             }
+        }
+
+        // Update device status from sensor data
+        function updateDeviceStatusFromSensor(data) {
+            const now = Date.now();
             
-            // Update statistics
-            if (data.uptime) {
-                document.getElementById('uptimeValue').textContent = data.uptime;
+            // Update MCU status (if we're receiving data, MCU is online)
+            deviceStatus.mcu.online = true;
+            deviceStatus.mcu.lastSeen = now;
+            
+            // Update temperature sensor status
+            if (data.temperature !== undefined && !isNaN(data.temperature)) {
+                deviceStatus.tempSensor.online = true;
+                deviceStatus.tempSensor.lastSeen = now;
+                deviceStatus.tempSensor.lastReading = parseFloat(data.temperature);
+            } else {
+                deviceStatus.tempSensor.online = false;
+            }
+            
+            // Update humidity sensor status
+            if (data.humidity !== undefined && !isNaN(data.humidity)) {
+                deviceStatus.humiditySensor.online = true;
+                deviceStatus.humiditySensor.lastSeen = now;
+                deviceStatus.humiditySensor.lastReading = parseFloat(data.humidity);
+            } else {
+                deviceStatus.humiditySensor.online = false;
+            }
+            
+            // Update Firebase status (if we're getting data, Firebase is working)
+            deviceStatus.firebase.online = true;
+            deviceStatus.firebase.lastSeen = now;
+            
+            updateDeviceStatusUI();
+        }
+
+        // Update device status from state data
+        function updateDeviceStatusFromState(data) {
+            const now = Date.now();
+            
+            // If we're getting device state updates, WiFi is working
+            deviceStatus.wifi.online = true;
+            deviceStatus.wifi.lastSeen = now;
+            
+            // Update SD card status (you would need to send this from Arduino)
+            // For now, we'll assume it's online if we're getting data
+            deviceStatus.sdCard.online = true;
+            deviceStatus.sdCard.lastSeen = now;
+            
+            updateDeviceStatusUI();
+        }
+
+        // Update device status UI
+        function updateDeviceStatusUI() {
+            const now = Date.now();
+            let onlineCount = 0;
+            const totalDevices = 6;
+            
+            // Update each device status in the UI
+            const devices = [
+                {
+                    id: 'mcu',
+                    name: 'MCU Board',
+                    icon: 'fa-microchip',
+                    lastSeenEl: document.getElementById('mcuLastSeen'),
+                    online: deviceStatus.mcu.online
+                },
+                {
+                    id: 'tempSensor',
+                    name: 'Temperature Sensor',
+                    icon: 'fa-thermometer',
+                    lastSeenEl: document.getElementById('tempSensorLastSeen'),
+                    online: deviceStatus.tempSensor.online,
+                    reading: deviceStatus.tempSensor.lastReading
+                },
+                {
+                    id: 'humiditySensor',
+                    name: 'Humidity Sensor',
+                    icon: 'fa-tint',
+                    lastSeenEl: document.getElementById('humiditySensorLastSeen'),
+                    online: deviceStatus.humiditySensor.online,
+                    reading: deviceStatus.humiditySensor.lastReading
+                },
+                {
+                    id: 'wifi',
+                    name: 'WiFi Connection',
+                    icon: 'fa-wifi',
+                    lastSeenEl: document.getElementById('wifiLastSeen'),
+                    online: deviceStatus.wifi.online
+                },
+                {
+                    id: 'firebase',
+                    name: 'Cloud Sync',
+                    icon: 'fa-database',
+                    lastSeenEl: document.getElementById('firebaseLastSeen'),
+                    online: deviceStatus.firebase.online
+                },
+                {
+                    id: 'sdCard',
+                    name: 'SD Card Storage',
+                    icon: 'fa-sd-card',
+                    lastSeenEl: document.getElementById('sdCardLastSeen'),
+                    online: deviceStatus.sdCard.online
+                }
+            ];
+            
+            devices.forEach(device => {
+                const deviceElement = document.querySelector(`.device-status-item:nth-child(${devices.indexOf(device) + 1})`);
+                const iconContainer = deviceElement.querySelector('.device-icon-container');
+                const statusElement = deviceElement.querySelector('.device-status');
+                const lastSeenElement = device.lastSeenEl;
+                
+                if (device.online) {
+                    onlineCount++;
+                    
+                    // Update icon and status
+                    iconContainer.className = 'device-icon-container device-icon-online';
+                    statusElement.className = 'device-status device-status-online';
+                    statusElement.textContent = 'Online';
+                    
+                    // Update last seen text
+                    const timeDiff = Math.floor((now - device[device.id].lastSeen) / 1000);
+                    let lastSeenText = 'Just now';
+                    
+                    if (timeDiff > 60) {
+                        const minutes = Math.floor(timeDiff / 60);
+                        lastSeenText = `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+                    }
+                    
+                    if (device.reading !== null) {
+                        if (device.id === 'tempSensor') {
+                            lastSeenElement.textContent = `Reading: ${device.reading.toFixed(1)}°C`;
+                        } else if (device.id === 'humiditySensor') {
+                            lastSeenElement.textContent = `Reading: ${device.reading.toFixed(1)}%`;
+                        } else if (device.id === 'wifi') {
+                            // You would need to send WiFi signal strength from Arduino
+                            lastSeenElement.textContent = `Signal: Good`;
+                        } else {
+                            lastSeenElement.textContent = `Last seen: ${lastSeenText}`;
+                        }
+                    } else {
+                        lastSeenElement.textContent = `Last seen: ${lastSeenText}`;
+                    }
+                    
+                } else {
+                    // Device is offline
+                    iconContainer.className = 'device-icon-container device-icon-offline';
+                    statusElement.className = 'device-status device-status-offline';
+                    statusElement.textContent = 'Offline';
+                    
+                    const timeDiff = Math.floor((now - device[device.id].lastSeen) / 1000);
+                    if (timeDiff > 300) { // 5 minutes
+                        lastSeenElement.textContent = 'Disconnected';
+                    } else {
+                        lastSeenElement.textContent = `Last seen: ${Math.floor(timeDiff / 60)} minutes ago`;
+                    }
+                }
+            });
+            
+            // Update online count
+            document.getElementById('onlineCount').textContent = onlineCount;
+            document.getElementById('totalDevices').textContent = totalDevices;
+            
+            // Update system health
+            const healthPercentage = Math.round((onlineCount / totalDevices) * 100);
+            const healthCircle = document.getElementById('systemHealthCircle');
+            const healthPercentageText = document.getElementById('healthPercentage');
+            const healthStatusText = document.getElementById('healthStatus');
+            
+            healthPercentageText.textContent = `${healthPercentage}%`;
+            
+            if (healthPercentage >= 90) {
+                healthCircle.className = 'health-circle health-excellent';
+                healthStatusText.textContent = 'Excellent';
+                healthStatusText.style.color = '#10b981';
+            } else if (healthPercentage >= 70) {
+                healthCircle.className = 'health-circle health-good';
+                healthStatusText.textContent = 'Good';
+                healthStatusText.style.color = '#3b82f6';
+            } else if (healthPercentage >= 50) {
+                healthCircle.className = 'health-circle health-warning';
+                healthStatusText.textContent = 'Warning';
+                healthStatusText.style.color = '#f59e0b';
+            } else {
+                healthCircle.className = 'health-circle health-poor';
+                healthStatusText.textContent = 'Poor';
+                healthStatusText.style.color = '#ef4444';
+            }
+        }
+
+        // Check data freshness
+        function checkDataFreshness() {
+            const now = Date.now();
+            const timeDiff = now - lastDataTimestamp;
+            const connectionStatus = document.getElementById('connectionStatus');
+            
+            if (timeDiff > 120000) { // 2 minutes without data
+                connectionStatus.className = 'status-badge status-disconnected';
+                connectionStatus.innerHTML = '<i class="fas fa-wifi-slash"></i><span>Disconnected</span>';
+                
+                // Update device status
+                deviceStatus.mcu.online = false;
+                deviceStatus.firebase.online = false;
+                updateDeviceStatusUI();
+                
+                showNotification('No data received for 2 minutes. Check farm connection.', 'error');
+            } else if (timeDiff > 60000) { // 1 minute without data
+                connectionStatus.className = 'status-badge status-warning';
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i><span>Weak Connection</span>';
+            } else {
+                connectionStatus.className = 'status-badge status-connected';
+                connectionStatus.innerHTML = '<i class="fas fa-wifi"></i><span>Connected</span>';
+            }
+            
+            // Update last data received
+            const minutesAgo = Math.floor(timeDiff / 60000);
+            const lastDataReceived = document.getElementById('lastDataReceived');
+            if (minutesAgo === 0) {
+                lastDataReceived.textContent = 'Just now';
+            } else if (minutesAgo === 1) {
+                lastDataReceived.textContent = '1 minute ago';
+            } else {
+                lastDataReceived.textContent = `${minutesAgo} minutes ago`;
+            }
+            
+            // Update connection stability
+            const connectionStability = document.getElementById('connectionStability');
+            if (timeDiff < 30000) {
+                connectionStability.textContent = 'Excellent';
+                connectionStability.style.color = '#10b981';
+            } else if (timeDiff < 60000) {
+                connectionStability.textContent = 'Good';
+                connectionStability.style.color = '#3b82f6';
+            } else if (timeDiff < 120000) {
+                connectionStability.textContent = 'Fair';
+                connectionStability.style.color = '#f59e0b';
+            } else {
+                connectionStability.textContent = 'Poor';
+                connectionStability.style.color = '#ef4444';
             }
         }
 
@@ -1236,10 +1833,39 @@
             });
         }
 
-        // Update device status
-        function updateDeviceStatus(data) {
-            // You can add visual feedback for device states here
-            console.log('Device status updated:', data);
+        // Update diagnostics display
+        function updateDiagnosticsDisplay(data) {
+            if (data.uptime) {
+                document.getElementById('mcuUptime').textContent = formatUptime(data.uptime);
+                document.getElementById('uptimeValue').textContent = formatUptime(data.uptime);
+            }
+            
+            if (data.sensorReadCount) {
+                document.getElementById('sensorReadCount').textContent = data.sensorReadCount;
+            }
+            
+            if (data.firebaseUpdateCount) {
+                document.getElementById('firebaseUpdateCount').textContent = data.firebaseUpdateCount;
+            }
+            
+            if (data.sdWriteCount) {
+                document.getElementById('sdWriteCount').textContent = data.sdWriteCount;
+            }
+            
+            if (data.wifiStrength) {
+                document.getElementById('wifiSignal').textContent = data.wifiStrength + ' dBm';
+                deviceStatus.wifi.signalStrength = data.wifiStrength;
+            }
+            
+            if (data.wifiConnected !== undefined) {
+                deviceStatus.wifi.online = data.wifiConnected;
+                updateDeviceStatusUI();
+            }
+            
+            if (data.sdCardAvailable !== undefined) {
+                deviceStatus.sdCard.online = data.sdCardAvailable;
+                updateDeviceStatusUI();
+            }
         }
 
         // Update history for charts
@@ -1389,6 +2015,15 @@
             document.getElementById('footerUpdateTime').textContent = timeString;
         }
 
+        // Format uptime
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
         // Set up control button events
         function setupControlEvents() {
             // Auto/Manual mode buttons
@@ -1437,6 +2072,12 @@
             document.getElementById('refreshChart').addEventListener('click', () => {
                 updateChart();
                 showNotification('Chart refreshed', 'info');
+            });
+            
+            // Status refresh button
+            document.getElementById('refreshStatus').addEventListener('click', () => {
+                updateDeviceStatusUI();
+                showNotification('Device status refreshed', 'info');
             });
         }
 
